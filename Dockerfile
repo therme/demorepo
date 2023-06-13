@@ -1,24 +1,26 @@
-FROM golang:1.11.5 as base
+# syntax=docker/dockerfile:1
 
-ENV GO111MODULE on
+# https://docs.docker.com/build/building/multi-stage/
+FROM golang:1.20 as basebuild
 
-RUN apt update && apt install -y git
-#RUN apk --no-cache add gcc g++ make ca-certificates git
-RUN mkdir /weaver
-WORKDIR /weaver
+RUN mkdir /build
+WORKDIR /build
 
 ADD go.mod .
 ADD go.sum .
 RUN go mod download
 
-FROM base AS weaver_base
+FROM basebuild AS serverbuild
 
-ADD . /weaver
-RUN make setup
-RUN make build
+ADD . /build
+RUN go build .
 
-FROM alpine:latest
+FROM alpine:latest as baseruntime
+# https://github.com/golang/go/issues/59305#issuecomment-1513728735
+RUN apk add gcompat
 
-COPY --from=weaver_base /weaver/out/weaver-server /usr/local/bin/weaver
+FROM baseruntime as runtime
 
-ENTRYPOINT ["weaver", "start"] 
+COPY --from=serverbuild /build/adder /usr/local/bin/adder
+
+CMD ["/usr/local/bin/adder"] 
