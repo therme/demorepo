@@ -1,5 +1,9 @@
 # syntax=docker/dockerfile:1
 
+FROM alpine:latest as baseruntime
+# https://github.com/golang/go/issues/59305#issuecomment-1513728735
+RUN apk add gcompat
+
 # https://docs.docker.com/build/building/multi-stage/
 FROM golang:1.20 as basebuild
 
@@ -15,12 +19,12 @@ FROM basebuild AS serverbuild
 ADD . /build
 RUN go build .
 
-FROM alpine:latest as baseruntime
-# https://github.com/golang/go/issues/59305#issuecomment-1513728735
-RUN apk add gcompat
-
 FROM baseruntime as runtime
 
 COPY --from=serverbuild /build/adder /usr/local/bin/adder
+COPY --from=serverbuild /build/adder /usr/local/bin/adder
 
-CMD ["/usr/local/bin/adder"] 
+EXPOSE 12345
+
+CMD ["/bin/sh"]
+#ENTRYPOINT ["weaver", "multi", "deploy", "adder.toml"]

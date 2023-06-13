@@ -25,7 +25,7 @@ type app struct {
 // Main is called by weaver.Run and contains the body of the application.
 func (app *app) Main(ctx context.Context) error {
 
-	opts := weaver.ListenerOptions{LocalAddress: "localhost:12345"}
+	opts := weaver.ListenerOptions{LocalAddress: "localhost:8080"}
 	lis, err := app.Listener("hiya", opts)
 	if err != nil {
 		return err
@@ -38,12 +38,7 @@ func (app *app) Main(ctx context.Context) error {
 		if name == "" {
 			name = "World!"
 		}
-		reversed, err := app.reverser.Get().Reverse(ctx, name)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-		fmt.Fprintf(w, "Hello %s!\n", reversed)
+		fmt.Fprintf(w, "Hello %s!\n", name)
 	})
 	return http.Serve(lis, nil)
 }
