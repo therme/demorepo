@@ -24,7 +24,6 @@ FROM baseruntime as runtime
 COPY --from=serverbuild /build/adder /usr/local/bin/adder
 COPY --from=serverbuild /build/adder /usr/local/bin/adder
 
-EXPOSE 12345
+EXPOSE 8080
 
-CMD ["/bin/sh"]
-#ENTRYPOINT ["weaver", "multi", "deploy", "adder.toml"]
+ENTRYPOINT ["/usr/local/bin/adder"]

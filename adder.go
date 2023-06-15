@@ -25,7 +25,7 @@ type app struct {
 // Main is called by weaver.Run and contains the body of the application.
 func (app *app) Main(ctx context.Context) error {
 
-	opts := weaver.ListenerOptions{LocalAddress: "localhost:8080"}
+	opts := weaver.ListenerOptions{LocalAddress: "0.0.0.0:8080"}
 	lis, err := app.Listener("hiya", opts)
 	if err != nil {
 		return err
