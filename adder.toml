@@ -1,2 +1,8 @@
 [serviceweaver]
 binary = "./adder"
+
+[single]
+listeners.hello = {address = "localhost:8080"}
+
+[multi]
+listeners.hello = {address = "localhost:8080"}

@@ -10,7 +10,7 @@ import (
 )
 
 func main() {
-	if err := weaver.Run(context.Background()); err != nil {
+	if err := weaver.Run(context.Background(), serve); err != nil {
 		log.Fatal(err)
 	}
 }
@@ -20,17 +20,13 @@ func main() {
 type app struct {
 	weaver.Implements[weaver.Main]
 	reverser weaver.Ref[Reverser]
+	hello    weaver.Listener
 }
 
 // Main is called by weaver.Run and contains the body of the application.
-func (app *app) Main(ctx context.Context) error {
+func serve(ctx context.Context, app *app) error {
 
-	opts := weaver.ListenerOptions{LocalAddress: "0.0.0.0:8080"}
-	lis, err := app.Listener("hiya", opts)
-	if err != nil {
-		return err
-	}
-	fmt.Printf("app listening on %v\n", lis)
+	fmt.Printf("app listening on %v\n", app.hello)
 
 	// srv /hello endpoint
 	http.HandleFunc("/hello", func(w http.ResponseWriter, r *http.Request) {
@@ -43,5 +39,5 @@ func (app *app) Main(ctx context.Context) error {
 	http.HandleFunc("/healthz", func(w http.ResponseWriter, _ *http.Request) {
 		fmt.Fprintf(w, "{\"status\": \"OK\"}")
 	})
-	return http.Serve(lis, nil)
+	return http.Serve(app.hello, nil)
 }
