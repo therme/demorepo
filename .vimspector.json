@@ -1,0 +1,18 @@
+{
+  "configurations": {
+    "run-delve": {
+      "adapter": "delve",
+      "configuration": {
+        "request": "launch",
+
+        "mode": "debug", // debug|test
+        "program": "${workspaceRoot}/adder.go",
+
+        "args": [],
+        // "buildFlags": ...
+        // "stackTraceDepth": ...,
+        // "showGlobalVariables": true,
+      }
+    }
+  }
+}
