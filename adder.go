@@ -40,8 +40,8 @@ func (app *app) Main(ctx context.Context) error {
 		}
 		fmt.Fprintf(w, "Hello %s!\n", name)
 	})
-	http.HandleFunc("/", func(w http.ResponseWriter, _ *http.Request) {
-		fmt.Fprintf(w, "OK")
+	http.HandleFunc("/healthz", func(w http.ResponseWriter, _ *http.Request) {
+		fmt.Fprintf(w, "{\"status\": \"OK\"}")
 	})
 	return http.Serve(lis, nil)
 }
