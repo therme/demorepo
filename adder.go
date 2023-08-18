@@ -23,7 +23,7 @@ type app struct {
 	hello    weaver.Listener
 }
 
-// Main is called by weaver.Run and contains the body of the application.
+// serve is called by weaver.Run and contains the body of the application.
 func serve(ctx context.Context, app *app) error {
 
 	fmt.Printf("app listening on %v\n", app.hello)

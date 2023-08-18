@@ -5,7 +5,7 @@ FROM alpine:latest as baseruntime
 RUN apk add gcompat
 
 # https://docs.docker.com/build/building/multi-stage/
-FROM golang:1.20 as basebuild
+FROM golang:1.21 as basebuild
 
 RUN mkdir /build
 WORKDIR /build
