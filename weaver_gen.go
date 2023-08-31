@@ -13,32 +13,12 @@ import (
 	"reflect"
 )
 
-var _ codegen.LatestVersion = codegen.Version[[0][17]struct{}](`
-
-ERROR: You generated this file with 'weaver generate' v0.19.0 (codegen
-version v0.17.0). The generated code is incompatible with the version of the
-github.com/ServiceWeaver/weaver module that you're using. The weaver module
-version can be found in your go.mod file or by running the following command.
-
-    go list -m github.com/ServiceWeaver/weaver
-
-We recommend updating the weaver module and the 'weaver generate' command by
-running the following.
-
-    go get github.com/ServiceWeaver/weaver@latest
-    go install github.com/ServiceWeaver/weaver/cmd/weaver@latest
-
-Then, re-run 'weaver generate' and re-build your code. If the problem persists,
-please file an issue at https://github.com/ServiceWeaver/weaver/issues.
-
-`)
-
 func init() {
 	codegen.Register(codegen.Registration{
 		Name:      "github.com/ServiceWeaver/weaver/Main",
 		Iface:     reflect.TypeOf((*weaver.Main)(nil)).Elem(),
 		Impl:      reflect.TypeOf(app{}),
-		Listeners: []string{"hello"},
+		Listeners: []string{"lis"},
 		LocalStubFn: func(impl any, caller string, tracer trace.Tracer) any {
 			return main_local_stub{impl: impl.(weaver.Main), tracer: tracer}
 		},
@@ -46,7 +26,10 @@ func init() {
 		ServerStubFn: func(impl any, addLoad func(uint64, float64)) codegen.Server {
 			return main_server_stub{impl: impl.(weaver.Main), addLoad: addLoad}
 		},
-		RefData: "⟦f5c2cef4:wEaVeReDgE:github.com/ServiceWeaver/weaver/Main→example.com/adder/Reverser⟧\n⟦17f36ff9:wEaVeRlIsTeNeRs:github.com/ServiceWeaver/weaver/Main→hello⟧\n",
+		ReflectStubFn: func(caller func(string, context.Context, []any, []any) error) any {
+			return main_reflect_stub{caller: caller}
+		},
+		RefData: "⟦f5c2cef4:wEaVeReDgE:github.com/ServiceWeaver/weaver/Main→example.com/adder/Reverser⟧\n⟦d535aefb:wEaVeRlIsTeNeRs:github.com/ServiceWeaver/weaver/Main→lis⟧\n",
 	})
 	codegen.Register(codegen.Registration{
 		Name:  "example.com/adder/Reverser",
@@ -60,6 +43,9 @@ func init() {
 		},
 		ServerStubFn: func(impl any, addLoad func(uint64, float64)) codegen.Server {
 			return reverser_server_stub{impl: impl.(Reverser), addLoad: addLoad}
+		},
+		ReflectStubFn: func(caller func(string, context.Context, []any, []any) error) any {
+			return reverser_reflect_stub{caller: caller}
 		},
 		RefData: "",
 	})
@@ -185,6 +171,29 @@ func (s reverser_client_stub) Reverse(ctx context.Context, a0 string) (r0 string
 	return
 }
 
+// Note that "weaver generate" will always generate the error message below.
+// Everything is okay. The error message is only relevant if you see it when
+// you run "go build" or "go run".
+var _ codegen.LatestVersion = codegen.Version[[0][20]struct{}](`
+
+ERROR: You generated this file with 'weaver generate' v0.20.0 (codegen
+version v0.20.0). The generated code is incompatible with the version of the
+github.com/ServiceWeaver/weaver module that you're using. The weaver module
+version can be found in your go.mod file or by running the following command.
+
+    go list -m github.com/ServiceWeaver/weaver
+
+We recommend updating the weaver module and the 'weaver generate' command by
+running the following.
+
+    go get github.com/ServiceWeaver/weaver@latest
+    go install github.com/ServiceWeaver/weaver/cmd/weaver@latest
+
+Then, re-run 'weaver generate' and re-build your code. If the problem persists,
+please file an issue at https://github.com/ServiceWeaver/weaver/issues.
+
+`)
+
 // Server stub implementations.
 
 type main_server_stub struct {
@@ -244,4 +253,25 @@ func (s reverser_server_stub) reverse(ctx context.Context, args []byte) (res []b
 	enc.String(r0)
 	enc.Error(appErr)
 	return enc.Data(), nil
+}
+
+// Reflect stub implementations.
+
+type main_reflect_stub struct {
+	caller func(string, context.Context, []any, []any) error
+}
+
+// Check that main_reflect_stub implements the weaver.Main interface.
+var _ weaver.Main = (*main_reflect_stub)(nil)
+
+type reverser_reflect_stub struct {
+	caller func(string, context.Context, []any, []any) error
+}
+
+// Check that reverser_reflect_stub implements the Reverser interface.
+var _ Reverser = (*reverser_reflect_stub)(nil)
+
+func (s reverser_reflect_stub) Reverse(ctx context.Context, a0 string) (r0 string, err error) {
+	err = s.caller("Reverse", ctx, []any{a0}, []any{&r0})
+	return
 }

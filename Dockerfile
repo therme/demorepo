@@ -22,7 +22,6 @@ RUN go build .
 FROM baseruntime as runtime
 
 COPY --from=serverbuild /build/adder /usr/local/bin/adder
-COPY --from=serverbuild /build/adder /usr/local/bin/adder
 
 EXPOSE 8080
 
