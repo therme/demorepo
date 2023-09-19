@@ -14,13 +14,13 @@ binary = "/usr/local/bin/adder"
 # `weaver single deploy`. See serviceweaver.dev/docs.html#single-process for
 # more information about the single process deployer.
 [single]
-listeners.lis = {address = "localhost:8080"}
+listeners.lis = {address = "0.0.0.0:8080"}
 
 # The [multi] section configures the behavior of the app when deployed via
 # `weaver multi deploy`. See serviceweaver.dev/docs.html#multiprocess for more
 # information about the multiprocess deployer.
 [multi]
-listeners.lis = {address = "localhost:8080"}
+listeners.lis = {address = "0.0.0.0:8080"}
 
 # The [kube] section configures the behavior of the app when deployed via
 # `weaver kube deploy`. See github.com/serviceweaver/weaver-kube for
