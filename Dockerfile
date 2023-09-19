@@ -13,6 +13,7 @@ WORKDIR /build
 ADD go.mod .
 ADD go.sum .
 RUN go mod download
+RUN go install github.com/ServiceWeaver/weaver/cmd/weaver@latest
 
 FROM basebuild AS serverbuild
 
@@ -21,8 +22,11 @@ RUN go build .
 
 FROM baseruntime as runtime
 
+COPY --from=serverbuild /go/bin/weaver /usr/local/bin/weaver
+COPY adder.toml /var/lib/adder/adder.toml
 COPY --from=serverbuild /build/adder /usr/local/bin/adder
 
 EXPOSE 8080
 
-ENTRYPOINT ["/usr/local/bin/adder"]
+CMD ["single", "deploy", "/var/lib/adder/adder.toml"]
+ENTRYPOINT ["weaver"]

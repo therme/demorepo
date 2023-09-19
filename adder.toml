@@ -6,7 +6,7 @@
 # basics of an application, including the binary to run, the command line
 # arguments to pass, and the environment variables to set.
 [serviceweaver]
-binary = "./adder"
+binary = "/usr/local/bin/adder"
 # args = ["put", "command", "line", "arguments", "here"]
 # env = ["PUT=foo", "ENV=bar", "VARS=baz", "HERE="]
 
