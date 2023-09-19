@@ -3,7 +3,7 @@ module example.com/adder
 go 1.21.0
 
 require (
-	github.com/ServiceWeaver/weaver v0.20.0
+	github.com/ServiceWeaver/weaver v0.21.0
 	go.opentelemetry.io/otel v1.16.0
 	go.opentelemetry.io/otel/trace v1.16.0
 )
