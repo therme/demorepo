@@ -83,13 +83,16 @@ WORKDIR /build
 
 ADD go.mod .
 ADD go.sum .
-RUN go mod download
-RUN go install github.com/ServiceWeaver/weaver/cmd/weaver@latest
+# reproducible go builds: https://go.dev/blog/rebuild#conclusion
+RUN CGO_ENABLED=0 go mod download
+RUN CGO_ENABLED=0 go install \
+    -trimpath github.com/ServiceWeaver/weaver/cmd/weaver@latest
 
 FROM basebuild AS serverbuild
 
 ADD . /build
-RUN go build .
+# reproducible go builds: https://go.dev/blog/rebuild#conclusion
+RUN CGO_ENABLED=0 go build -trimpath -o adder .
 
 FROM scratch AS runtime
 
