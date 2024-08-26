@@ -29,17 +29,17 @@ func init() {
 		ReflectStubFn: func(caller func(string, context.Context, []any, []any) error) any {
 			return main_reflect_stub{caller: caller}
 		},
-		RefData: "⟦f5c2cef4:wEaVeReDgE:github.com/ServiceWeaver/weaver/Main→example.com/adder/Reverser⟧\n⟦d535aefb:wEaVeRlIsTeNeRs:github.com/ServiceWeaver/weaver/Main→lis⟧\n",
+		RefData: "⟦a481e5f1:wEaVeReDgE:github.com/ServiceWeaver/weaver/Main→adder/Reverser⟧\n⟦d535aefb:wEaVeRlIsTeNeRs:github.com/ServiceWeaver/weaver/Main→lis⟧\n",
 	})
 	codegen.Register(codegen.Registration{
-		Name:  "example.com/adder/Reverser",
+		Name:  "adder/Reverser",
 		Iface: reflect.TypeOf((*Reverser)(nil)).Elem(),
 		Impl:  reflect.TypeOf(reverser{}),
 		LocalStubFn: func(impl any, caller string, tracer trace.Tracer) any {
-			return reverser_local_stub{impl: impl.(Reverser), tracer: tracer, reverseMetrics: codegen.MethodMetricsFor(codegen.MethodLabels{Caller: caller, Component: "example.com/adder/Reverser", Method: "Reverse", Remote: false})}
+			return reverser_local_stub{impl: impl.(Reverser), tracer: tracer, reverseMetrics: codegen.MethodMetricsFor(codegen.MethodLabels{Caller: caller, Component: "adder/Reverser", Method: "Reverse", Remote: false})}
 		},
 		ClientStubFn: func(stub codegen.Stub, caller string) any {
-			return reverser_client_stub{stub: stub, reverseMetrics: codegen.MethodMetricsFor(codegen.MethodLabels{Caller: caller, Component: "example.com/adder/Reverser", Method: "Reverse", Remote: true})}
+			return reverser_client_stub{stub: stub, reverseMetrics: codegen.MethodMetricsFor(codegen.MethodLabels{Caller: caller, Component: "adder/Reverser", Method: "Reverse", Remote: true})}
 		},
 		ServerStubFn: func(impl any, addLoad func(uint64, float64)) codegen.Server {
 			return reverser_server_stub{impl: impl.(Reverser), addLoad: addLoad}
@@ -176,7 +176,7 @@ func (s reverser_client_stub) Reverse(ctx context.Context, a0 string) (r0 string
 // you run "go build" or "go run".
 var _ codegen.LatestVersion = codegen.Version[[0][20]struct{}](`
 
-ERROR: You generated this file with 'weaver generate' v0.20.0 (codegen
+ERROR: You generated this file with 'weaver generate' v0.21.2 (codegen
 version v0.20.0). The generated code is incompatible with the version of the
 github.com/ServiceWeaver/weaver module that you're using. The weaver module
 version can be found in your go.mod file or by running the following command.
