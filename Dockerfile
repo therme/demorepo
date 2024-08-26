@@ -70,10 +70,11 @@
 # following (step 1) is commented out because we're using scratch image. If
 # using alpine though, this should probably be uncommented
 
-FROM alpine:latest as baseruntime
+#FROM alpine:latest as baseruntime
 # add gcompat because
 # https://github.com/golang/go/issues/59305#issuecomment-1513728735
-RUN apk add gcompat
+# hadolint ignore=DL3018
+#RUN apk add --no-cache gcompat
 
 FROM golang:1.21 as basebuild
 
@@ -90,7 +91,7 @@ FROM basebuild AS serverbuild
 ADD . /build
 RUN go build .
 
-FROM baseruntime as runtime
+FROM scratch AS runtime
 
 COPY --from=serverbuild /go/bin/weaver /usr/local/bin/weaver
 COPY adder.toml /var/lib/adder/adder.toml

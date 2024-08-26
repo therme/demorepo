@@ -6,6 +6,7 @@ require (
 	github.com/ServiceWeaver/weaver v0.21.0
 	go.opentelemetry.io/otel v1.16.0
 	go.opentelemetry.io/otel/trace v1.16.0
+	golang.org/x/crypto/x509roots/fallback v0.0.0-20240806160748-b2d3a6a4b4d3
 )
 
 require (

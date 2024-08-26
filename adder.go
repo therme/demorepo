@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	"github.com/ServiceWeaver/weaver"
+	_ "golang.org/x/crypto/x509roots/fallback" // CA bundle for FROM Scratch
 )
 
 // This is a template of a simple Service Weaver application. You can run the
