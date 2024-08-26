@@ -1,0 +1,6 @@
+services:
+  hello-weaver:
+    image: hello-weaver
+    ports:
+      - 8080:8080
+
