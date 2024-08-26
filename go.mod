@@ -1,4 +1,4 @@
-module example.com/adder
+module adder
 
 go 1.23.0
 
