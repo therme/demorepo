@@ -93,7 +93,14 @@ FROM basebuild AS serverbuild
 
 COPY . /build
 # reproducible go builds: https://go.dev/blog/rebuild#conclusion
-RUN CGO_ENABLED=0 go build -trimpath -o adder .
+# hadolint ignore=SC2015
+RUN CGO_ENABLED=0 go build -trimpath \
+    -tags "User=$(id -u -n),Time=$(date -u +%s),BuildHost=$(which hostnamectl && hostnamectl || hostname)" \
+    -ldflags="-s -w \
+    -X 'main.User=$(id -u -n)' \
+    -X 'main.Time=$(date -u +%s)' \
+    -X 'main.BuildHost=$(which hostnamectl && hostnamectl || hostname)'" \
+    -o adder .
 
 FROM scratch AS runtime
 

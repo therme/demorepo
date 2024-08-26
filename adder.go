@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"runtime/debug"
 
 	"github.com/ServiceWeaver/weaver"
 	_ "golang.org/x/crypto/x509roots/fallback" // CA bundle for FROM Scratch
@@ -27,7 +28,18 @@ import (
 
 //go:generate weaver generate ./...
 
+// https://www.digitalocean.com/community/tutorials/using-ldflags-to-set-version-information-for-go-applications?comment=203611
+func GetVersion() (ret string) {
+	if b, ok := debug.ReadBuildInfo(); ok && len(b.Main.Version) > 0 {
+		ret = b.Main.Version
+	} else {
+		ret = "unknown"
+	}
+	return
+}
+
 func main() {
+	fmt.Println("app " + GetVersion() + " boot")
 	// weaver.Run runs a Service Weaver application. It creates and initializes
 	// all components, and then passes a pointer to the main component to the
 	// serve function.
