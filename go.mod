@@ -1,6 +1,6 @@
 module example.com/adder
 
-go 1.21.0
+go 1.23.0
 
 require (
 	github.com/ServiceWeaver/weaver v0.21.0

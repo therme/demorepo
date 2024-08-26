@@ -76,7 +76,7 @@
 # hadolint ignore=DL3018
 #RUN apk add --no-cache gcompat
 
-FROM golang:1.21 as basebuild
+FROM golang:1.23 AS basebuild
 
 RUN mkdir /build
 WORKDIR /build
