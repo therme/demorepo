@@ -1,54 +1,73 @@
 # syntax=docker/dockerfile:1
 
-# BUILDING
+# ====== BUILDING ======
 # - for Intel:
 # $ docker build --platform linux/amd64 . -t hello-weaver
 # - for ARM:
 # $ docker build --platform linux/arm64 . -t hello-weaver
 #
-# RUNNING
+# ====== RUNNING ======
 # $ docker run -it -p 8080:8080 --name demoapp hello-weaver
 #
-# HOW IT WORKS
-# See ref [1]
-
-# this is a multi-stage build, see ref [2]
+# ===== OVERVIEW  =====
+# See ref [1] for a high-level overview, and ref [2] for details on specific
+# commands
+#
+# Basic principles:
 #  - Code changes often
 #  - OS, runtime and rest of system do not
-#  - no need to have any build stuff in prod: reduce attack surface and keep the
-#    image slim
+#  - no need to have any build stuff in prod -> reduce attack surface and keep
+#    the image slim by excluding all the build tools from the final shipped
+#    image. This is accomplished via a multi-stage build process (see ref [3]
+#    for more on those)
 #  - make the image slimmer yet by doing pure go builds (see ref [1] and
-#    using `FROM scratch` as base runtime image
+#    using `FROM scratch` as base runtime image)
 #
-# We do the build steps in order of what changes from least to most often.
-# Copy the resulting binary to `runtime` docker build:
-#  1/ get the runtime OS/build environment and configure it -> result is
+# In order to take maximum advantage of the docker image cache, we do the build
+# steps in order of what changes from least to most often.
+# We finish by copying the resulting binary to `runtime` docker build. Here's
+# a more detailed list of steps:
+#  1/ configure the runtime OS/runtime SDK -> result is
 #     baseruntime - SKIP BECAUSE WE ARE RUNNING A STATICALLY-LINKED GOLANG
-#     BINARY SO THIS IS UNNCESSARY. If any kind of runtime environment config is
-#     needed or possibly if the binary isn't statically linked, this step is
-#     needed as well.
+#     BINARY SO THIS IS UNNCESSARY. We will use `scratch` here instead.
+#     If any kind of runtime config is needed or if the binary isn't statically
+#     linked, this step is needed as well. Also see ref [4]
 #  2/ setup the build environment -> result is basebuild
 #  3/ use basebuild to build the server -> result is serverbuild
-#  4/ copy the server from serverbuild to baseruntime, or `scratch` for
-#     statically linked executables -> result is runtime
+#  4/ copy the server from serverbuild to baseruntime, or in this case to
+#     `scratch` since it's a statically linked executables -> result is runtime
 #  5/ shipit
 #
 # While steps 3 and 4 needs to happen every time the code changes, steps 1 and 2
-# do not. Take advantage of docker caching architecture to leave those stages/
-# image layers alone by doing step 3 after 1 and 2.
+# do not.
 # Step 3 results in a large docker image (822MB). The binaries we need are a lot
 # smaller than 800-odd MB and come out to 49.2MB total, of which 30MB is the
 # weaver executable -> step 4 copies just those necessary binaries to
 # baseruntime. Go is statically linked so there's no need to copy over any
 # libraries.
 #
-# Refs:
-# [1] Dockerfile basics and command reference
-#     https://docs.docker.com/engine/reference/builder/
-# [2] Multi-stage builds
-#     https://docs.docker.com/build/building/multi-stage/
-# [3] Laurent Demailly's blogpost
+# ====== PITFALLS ======
+# - Making https calls from your app? You'll need a CA bundle. If you're using
+#   `FROM SCRATCH` as your baseruntme and you have a go application, you can solve
+#   this with the following blank import in your application code:
+#   ```
+#   import _ "golang.org/x/crypto/x509roots/fallback"
+#   ```
+# - Does your webapp load and serve static content? You may possibly want to
+#   copy a /etc/mime.types from the build layer - see ref [5]
+#
+# ===== REFERENCES =====
+# [1] Laurent Demailly's blogpost
 #     https://laurentsv.com/blog/2024/06/25/stop-the-go-and-docker-madness.html
+# [2] Dockerfile basics and command reference
+#     https://docs.docker.com/engine/reference/builder/
+# [3] Multi-stage builds
+#     https://docs.docker.com/build/building/multi-stage/
+# [4] Distroless docker images, for when shipping a statically-linked binary
+#     isn't possible
+#     https://github.com/GoogleContainerTools/distroless
+# [5] On mimetypes and serving static content from a webserver
+#     https://xeiaso.net/blog/2024/fixing-rss-mailcap/
 #
 #
 # TIPS FOR DEBUGGING THE BUILD
@@ -66,15 +85,6 @@
 
 # We use the docker registry in AWS for retention of our old docker builds. If
 # something breaks, we can revert to an old container version.
-
-# following (step 1) is commented out because we're using scratch image. If
-# using alpine though, this should probably be uncommented
-
-#FROM alpine:latest as baseruntime
-# add gcompat because
-# https://github.com/golang/go/issues/59305#issuecomment-1513728735
-# hadolint ignore=DL3018
-#RUN apk add --no-cache gcompat
 
 FROM golang:1.23 AS basebuild
 
